@@ -137,6 +137,9 @@ typedef NS_ENUM(NSUInteger, STGcovVersion) {
 	STGcovVersion402 = 0x3430322a,
 	STGcovVersion404 = 0x3430342a,
 };
+typedef NS_ENUM(NSUInteger, STGcovStamp) {
+	STGcovStampLLVM = 0x4c4c564d,
+};
 
 
 typedef NS_ENUM(NSUInteger, STGcovTag) {
@@ -147,6 +150,15 @@ typedef NS_ENUM(NSUInteger, STGcovTag) {
 	STGcovTagCounter  = 0x01a10000,
 };
 
+typedef NS_OPTIONS(NSUInteger, STGcovBlockFlags) {
+	STGcovBlockFlagsNone = 0,
+	STGcovBlockFlagUnexpected = 0x2,
+};
+typedef NS_OPTIONS(NSUInteger, STGcovArcFlags) {
+	STGcovArcFlagsNone = 0,
+	STGcovArcFlagComputedCount = 0x1,
+	STGcovArcFlagFake = 0x2,
+};
 
 @interface STGcovFunction : NSObject
 @property (nonatomic,assign,readonly) NSUInteger identifier;
@@ -160,20 +172,25 @@ typedef NS_ENUM(NSUInteger, STGcovTag) {
 - (BOOL)addLinesFromData:(NSData *)data version:(STGcovVersion)version;
 - (BOOL)addCountsFromData:(NSData *)data version:(STGcovVersion)version;
 @end
+
+
 typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger lineNumber, uint64_t count);
 @interface STGcovBlock : NSObject
-@property (nonatomic,assign,readonly) NSUInteger flags;
-@property (nonatomic,assign,readonly) uint64_t count;
-- (id)initWithFlags:(NSUInteger)flags;
-- (BOOL)addArcWithIdentifier:(NSUInteger)arcIdentifier flags:(NSUInteger)arcFlags;
+@property (nonatomic,assign,readonly) STGcovBlockFlags flags;
+@property (nonatomic,strong,readonly) NSArray *arcs;
+- (id)initWithFlags:(STGcovBlockFlags)flags;
+- (BOOL)addArcWithDestination:(NSUInteger)arcIdentifier flags:(STGcovArcFlags)arcFlags;
 - (BOOL)addFilename:(NSString *)filename lineNumber:(NSUInteger)lineNumber;
-- (void)addCount:(uint64_t)count;
 - (void)enumerateCoveredLinesWithBlock:(STGcovBlockCoverageEnumerator)block;
 @end
+
+
 @interface STGcovArc : NSObject
-@property (nonatomic,assign,readonly) NSUInteger identifier;
-@property (nonatomic,assign,readonly) NSUInteger flags;
-- (id)initWithIdentifier:(NSUInteger)identifier flags:(NSUInteger)flags;
+@property (nonatomic,assign,readonly) NSUInteger destination;
+@property (nonatomic,assign,readonly) STGcovArcFlags flags;
+@property (nonatomic,assign,readonly) uint64_t count;
+- (id)initWithDestination:(NSUInteger)destination flags:(STGcovArcFlags)flags;
+- (void)addCount:(uint64_t)count;
 @end
 
 
@@ -190,7 +207,7 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 
 	STGcovMagic magic = 0;
 	STGcovVersion version = 0;
-	NSUInteger stamp = 0;
+	STGcovStamp stamp = 0;
 	if (![stream readUInt32:&magic] || ![stream readUInt32:&version] || ![stream readUInt32:&stamp]) {
 		return nil;
 	}
@@ -218,6 +235,16 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 		return nil;
 	}
 
+	BOOL knownStamp = NO;
+	switch (stamp) {
+		case STGcovStampLLVM:
+			knownStamp = YES;
+			break;
+	}
+	if (!knownStamp) {
+		return nil;
+	}
+
 	if ((self = [super init])) {
 		_functions = [[NSMutableArray alloc] init];
 
@@ -229,35 +256,48 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 
 			NSUInteger tagLen = 0;
 			if (![stream readUInt32:&tagLen]) {
+				return nil;
+			}
+			if (tag == 0 && tagLen == 0) {
 				break;
 			}
 
 			NSData *tagData = nil;
 			if (![stream readDataLength:tagLen*4 data:&tagData]) {
-				break;
+				return nil;
 			}
 
 			switch (tag) {
 				case STGcovTagFunction: {
 					STGcovFunction *function = [[STGcovFunction alloc] initWithData:tagData version:version];
-					if (function) {
-						[_functions addObject:function];
+					if (!function) {
+						return nil;
 					}
+					[_functions addObject:function];
 				} break;
 				case STGcovTagBlocks: {
 					STGcovFunction *function = [_functions lastObject];
-					[function addBlocksFromData:tagData version:version];
+					if (![function addBlocksFromData:tagData version:version]) {
+						return nil;
+					}
 				} break;
 				case STGcovTagArcs: {
 					STGcovFunction *function = [_functions lastObject];
-					[function addArcsFromData:tagData version:version];
+					if (![function addArcsFromData:tagData version:version]) {
+						return nil;
+					}
 				} break;
 				case STGcovTagLines: {
 					STGcovFunction *function = [_functions lastObject];
-					[function addLinesFromData:tagData version:version];
+					if (![function addLinesFromData:tagData version:version]) {
+						return nil;
+					}
 				} break;
 				case STGcovTagCounter: {
 					NSAssert(0, @"unexpected counter tag in GCNO file");
+				} break;
+				default: {
+					NSAssert(0, @"unhandled tag");
 				} break;
 			}
 		}
@@ -307,12 +347,15 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 
 		NSUInteger tagLen = 0;
 		if (![stream readUInt32:&tagLen]) {
+			return NO;
+		}
+		if (tag == 0 && tagLen == 0) {
 			break;
 		}
 
 		NSData *tagData = nil;
 		if (![stream readDataLength:tagLen*4 data:&tagData]) {
-			break;
+			return NO;
 		}
 
 		switch (tag) {
@@ -330,6 +373,9 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 			} break;
 			case STGcovTagCounter: {
 				[function addCountsFromData:tagData version:version];
+			} break;
+			default: {
+				NSAssert(0, @"unhandled tag");
 			} break;
 		}
 	}
@@ -497,7 +543,7 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 		if (![stream readUInt32:&arcFlags]) {
 			return NO;
 		}
-		[block addArcWithIdentifier:arcIdentifier flags:arcFlags];
+		[block addArcWithDestination:arcIdentifier flags:arcFlags];
 	}
 
 	return [stream isSpent];
@@ -537,16 +583,17 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 - (BOOL)addCountsFromData:(NSData *)data version:(STGcovVersion)version {
 	STGcovStream *stream = [[STGcovStream alloc] initWithData:data];
 
-	for (NSUInteger blockNumber = 0; ; ++blockNumber) {
-		uint64_t count = 0;
-		if (![stream readUInt64:&count]) {
-			break;
+	for (STGcovBlock *block in _blocks) {
+		for (STGcovArc *arc in block.arcs) {
+			if (arc.flags & STGcovArcFlagComputedCount) {
+				continue;
+			}
+			uint64_t count = 0;
+			if (![stream readUInt64:&count]) {
+				break;
+			}
+			[arc addCount:count];
 		}
-		if (blockNumber >= [_blocks count]) {
-			return NO;
-		}
-		STGcovBlock *block = _blocks[blockNumber];
-		[block addCount:count];
 	}
 
 	return [stream isSpent];
@@ -556,24 +603,23 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 
 
 @interface STGcovBlock ()
-@property (nonatomic,strong,readonly) NSMutableDictionary *arcsByIdentifier;
 @property (nonatomic,strong,readonly) NSMutableDictionary *coveredLinesByFile; // string -> countedset
 @end
-@implementation STGcovBlock
-- (id)initWithFlags:(NSUInteger)flags {
+@implementation STGcovBlock {
+@private
+	NSMutableArray *_arcs;
+}
+- (id)initWithFlags:(STGcovBlockFlags)flags {
 	if ((self = [super init])) {
 		_flags = flags;
-		_arcsByIdentifier = [[NSMutableDictionary alloc] init];
+		_arcs = [[NSMutableArray alloc] init];
 		_coveredLinesByFile = [[NSMutableDictionary alloc] init];
 	}
 	return self;
 }
-- (BOOL)addArcWithIdentifier:(NSUInteger)arcIdentifier flags:(NSUInteger)arcFlags {
-	id<NSCopying> key = @(arcIdentifier);
-	if (_arcsByIdentifier[key]) {
-		return NO;
-	}
-	_arcsByIdentifier[key] = [[STGcovArc alloc] initWithIdentifier:arcIdentifier flags:arcFlags];
+- (BOOL)addArcWithDestination:(NSUInteger)arcDestination flags:(STGcovArcFlags)arcFlags {
+	STGcovArc *arc = [[STGcovArc alloc] initWithDestination:arcDestination flags:arcFlags];
+	[_arcs addObject:arc];
 	return YES;
 }
 - (BOOL)addFilename:(NSString *)filename lineNumber:(NSUInteger)lineNumber {
@@ -585,17 +631,21 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 	[lineNumbers addObject:@(lineNumber)];
 	return YES;
 }
-- (void)addCount:(uint64_t)count {
-	_count += count;
-}
 - (void)enumerateCoveredLinesWithBlock:(STGcovBlockCoverageEnumerator)block {
 	if (!block) {
 		return;
 	}
+	uint64_t count = 0;
+	for (STGcovArc *arc in _arcs) {
+		if (arc.flags & STGcovArcFlagComputedCount) {
+			continue;
+		}
+		count += arc.count;
+	}
 	[_coveredLinesByFile enumerateKeysAndObjectsUsingBlock:^(NSString *filename, NSCountedSet *lineNumbers, BOOL *stop) {
 		[lineNumbers enumerateObjectsUsingBlock:^(NSNumber *lineNumber, BOOL *stop) {
 			NSUInteger multiplier = [lineNumbers countForObject:lineNumber];
-			block(filename, [lineNumber unsignedIntegerValue], _count * multiplier);
+			block(filename, [lineNumber unsignedIntegerValue], count * multiplier);
 		}];
 	}];
 }
@@ -606,13 +656,16 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 @end
 @implementation STGcovArc
 - (id)init {
-	return [self initWithIdentifier:0 flags:0];
+	return [self initWithDestination:0 flags:0];
 }
-- (id)initWithIdentifier:(NSUInteger)identifier flags:(NSUInteger)flags {
+- (id)initWithDestination:(NSUInteger)destination flags:(STGcovArcFlags)flags {
 	if ((self = [super init])) {
-		_identifier = identifier;
+		_destination = destination;
 		_flags = flags;
 	}
 	return self;
+}
+- (void)addCount:(uint64_t)count {
+	_count += count;
 }
 @end
