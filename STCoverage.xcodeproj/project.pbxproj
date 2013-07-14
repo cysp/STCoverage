@@ -11,6 +11,9 @@
 		2CB2008917919163004C73C7 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CB2008817919163004C73C7 /* XCTest.framework */; };
 		2CB2008D17919163004C73C7 /* libSTCoverage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CB2007417919163004C73C7 /* libSTCoverage.a */; };
 		2CB2009517919163004C73C7 /* STGcovTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB2009417919163004C73C7 /* STGcovTests.m */; };
+		2CB200B3179244D1004C73C7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CB2007A17919163004C73C7 /* Foundation.framework */; };
+		2CB200B6179244D1004C73C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB200B5179244D1004C73C7 /* main.m */; };
+		2CB200BE1792452F004C73C7 /* libSTCoverage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CB2007417919163004C73C7 /* libSTCoverage.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -23,6 +26,18 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		2CB200B0179244D1004C73C7 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		2CB2007417919163004C73C7 /* libSTCoverage.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSTCoverage.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CB2007A17919163004C73C7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -32,6 +47,8 @@
 		2CB2008817919163004C73C7 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		2CB2009017919163004C73C7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2CB2009417919163004C73C7 /* STGcovTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = STGcovTests.m; sourceTree = "<group>"; };
+		2CB200B2179244D1004C73C7 /* STCoverage */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = STCoverage; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CB200B5179244D1004C73C7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +68,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2CB200AF179244D1004C73C7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CB200B3179244D1004C73C7 /* Foundation.framework in Frameworks */,
+				2CB200BE1792452F004C73C7 /* libSTCoverage.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -59,6 +85,7 @@
 			children = (
 				2CB2007D17919163004C73C7 /* STCoverage */,
 				2CB2008E17919163004C73C7 /* STCoverageTests */,
+				2CB200B4179244D1004C73C7 /* STCoverageCLI */,
 				2CB2007617919163004C73C7 /* Frameworks */,
 				2CB2007517919163004C73C7 /* Products */,
 			);
@@ -69,6 +96,7 @@
 			children = (
 				2CB2007417919163004C73C7 /* libSTCoverage.a */,
 				2CB2008717919163004C73C7 /* STCoverageTests.xctest */,
+				2CB200B2179244D1004C73C7 /* STCoverage */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -98,6 +126,14 @@
 				2CB2009417919163004C73C7 /* STGcovTests.m */,
 			);
 			path = STCoverageTests;
+			sourceTree = "<group>";
+		};
+		2CB200B4179244D1004C73C7 /* STCoverageCLI */ = {
+			isa = PBXGroup;
+			children = (
+				2CB200B5179244D1004C73C7 /* main.m */,
+			);
+			path = STCoverageCLI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -148,6 +184,23 @@
 			productReference = 2CB2008717919163004C73C7 /* STCoverageTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		2CB200B1179244D1004C73C7 /* STCoverageCLI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2CB200BB179244D1004C73C7 /* Build configuration list for PBXNativeTarget "STCoverageCLI" */;
+			buildPhases = (
+				2CB200AE179244D1004C73C7 /* Sources */,
+				2CB200AF179244D1004C73C7 /* Frameworks */,
+				2CB200B0179244D1004C73C7 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = STCoverageCLI;
+			productName = STCoverageCLI;
+			productReference = 2CB200B2179244D1004C73C7 /* STCoverage */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -171,6 +224,7 @@
 			targets = (
 				2CB2007317919163004C73C7 /* STCoverage */,
 				2CB2008617919163004C73C7 /* STCoverageTests */,
+				2CB200B1179244D1004C73C7 /* STCoverageCLI */,
 			);
 		};
 /* End PBXProject section */
@@ -199,6 +253,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CB2009517919163004C73C7 /* STGcovTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CB200AE179244D1004C73C7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CB200B6179244D1004C73C7 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,6 +391,24 @@
 			};
 			name = Release;
 		};
+		2CB200BC179244D1004C73C7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = STCoverage;
+			};
+			name = Debug;
+		};
+		2CB200BD179244D1004C73C7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = STCoverage;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -358,6 +438,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		2CB200BB179244D1004C73C7 /* Build configuration list for PBXNativeTarget "STCoverageCLI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2CB200BC179244D1004C73C7 /* Debug */,
+				2CB200BD179244D1004C73C7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
