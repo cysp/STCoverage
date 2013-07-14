@@ -88,8 +88,7 @@
 				2CB2008017919163004C73C7 /* STGcov.h */,
 				2CB2008117919163004C73C7 /* STGcov.m */,
 			);
-			name = STCoverage;
-			path = STGcov;
+			path = STCoverage;
 			sourceTree = "<group>";
 		};
 		2CB2008E17919163004C73C7 /* STCoverageTests */ = {
@@ -98,8 +97,7 @@
 				2CB2009017919163004C73C7 /* Info.plist */,
 				2CB2009417919163004C73C7 /* STGcovTests.m */,
 			);
-			name = STCoverageTests;
-			path = STGcovTests;
+			path = STCoverageTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -350,6 +348,7 @@
 				2CB2009A17919163004C73C7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2CB2009B17919163004C73C7 /* Build configuration list for PBXNativeTarget "STCoverageTests" */ = {
 			isa = XCConfigurationList;
@@ -358,6 +357,7 @@
 				2CB2009D17919163004C73C7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
