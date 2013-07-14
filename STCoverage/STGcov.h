@@ -5,7 +5,7 @@
 
 @interface STGcov : NSObject
 
-- (id)initWithGCNOData:(NSData *)gcno;
+- (BOOL)addGCNOData:(NSData *)gcno;
 
 - (BOOL)addGCDAData:(NSData *)gcda;
 

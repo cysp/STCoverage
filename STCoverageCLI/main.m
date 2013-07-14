@@ -17,18 +17,34 @@ int main(int argc, const char * argv[]) {
 			usage([[argv0 lastPathComponent] UTF8String] ?: "STCoverage");
 		}
 
-		NSString *gcnoFilename = [[NSString alloc] initWithUTF8String:argv[1]];
-		NSData *gcnoData = [[NSData alloc] initWithContentsOfFile:gcnoFilename options:NSDataReadingMappedIfSafe error:NULL];
-		if (!gcnoData) {
-			return 1;
-		}
-		STGcov *cov = [[STGcov alloc] initWithGCNOData:gcnoData];
-		if (!cov) {
-			return 1;
+		NSMutableArray *gcnoFilenames = [[NSMutableArray alloc] init];
+		NSMutableArray *gcdaFilenames = [[NSMutableArray alloc] init];
+		NSMutableArray *otherFilenames = [[NSMutableArray alloc] init];
+
+		for (int i = 1; i < argc; ++i) {
+			NSString *filename = [[NSString alloc] initWithUTF8String:argv[i]];
+			if ([filename hasSuffix:@".gcno"]) {
+				[gcnoFilenames addObject:filename];
+			} else if ([filename hasSuffix:@".gcda"]) {
+				[gcdaFilenames addObject:filename];
+			} else {
+				[otherFilenames addObject:filename];
+			}
 		}
 
-		for (int i = 2; i < argc; ++i) {
-			NSString *gcdaFilename = [[NSString alloc] initWithUTF8String:argv[i]];
+		STGcov *cov = [[STGcov alloc] init];
+
+		for (NSString *gcnoFilename in gcnoFilenames) {
+			NSData *gcnoData = [[NSData alloc] initWithContentsOfFile:gcnoFilename options:NSDataReadingMappedIfSafe error:NULL];
+			if (!gcnoData) {
+				return 1;
+			}
+			if (![cov addGCNOData:gcnoData]) {
+				return 1;
+			}
+		}
+
+		for (NSString *gcdaFilename in gcdaFilenames) {
 			NSData *gcdaData = [[NSData alloc] initWithContentsOfFile:gcdaFilename options:NSDataReadingMappedIfSafe error:NULL];
 			if (!gcdaData) {
 				return 1;

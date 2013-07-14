@@ -200,16 +200,19 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 @implementation STGcov
 
 - (id)init {
-	return [self initWithGCNOData:nil];
+	if ((self = [super init])) {
+		_functions = [[NSMutableArray alloc] init];
+	}
+	return self;
 }
-- (id)initWithGCNOData:(NSData *)gcno {
+- (BOOL)addGCNOData:(NSData *)gcno {
 	STGcovStream *stream = [[STGcovStream alloc] initWithData:gcno];
 
 	STGcovMagic magic = 0;
 	STGcovVersion version = 0;
 	STGcovStamp stamp = 0;
 	if (![stream readUInt32:&magic] || ![stream readUInt32:&version] || ![stream readUInt32:&stamp]) {
-		return nil;
+		return NO;
 	}
 
 	BOOL validMagic = NO;
@@ -221,7 +224,7 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 			break;
 	}
 	if (!validMagic) {
-		return nil;
+		return NO;
 	}
 
 	BOOL knownVersion = NO;
@@ -232,7 +235,7 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 			break;
 	}
 	if (!knownVersion) {
-		return nil;
+		return NO;
 	}
 
 	BOOL knownStamp = NO;
@@ -242,67 +245,59 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 			break;
 	}
 	if (!knownStamp) {
-		return nil;
+		return NO;
 	}
 
-	if ((self = [super init])) {
-		_functions = [[NSMutableArray alloc] init];
+	STGcovTag tag = 0;
+	while ([stream readUInt32:&tag]) {
+		NSUInteger tagLen = 0;
+		if (![stream readUInt32:&tagLen]) {
+			return NO;
+		}
+		if (tag == 0 && tagLen == 0) {
+			break;
+		}
 
-		for (;;) {
-			STGcovTag tag = 0;
-			if (![stream readUInt32:&tag]) {
-				break;
-			}
+		NSData *tagData = nil;
+		if (![stream readDataLength:tagLen*4 data:&tagData]) {
+			return NO;
+		}
 
-			NSUInteger tagLen = 0;
-			if (![stream readUInt32:&tagLen]) {
-				return nil;
-			}
-			if (tag == 0 && tagLen == 0) {
-				break;
-			}
-
-			NSData *tagData = nil;
-			if (![stream readDataLength:tagLen*4 data:&tagData]) {
-				return nil;
-			}
-
-			switch (tag) {
-				case STGcovTagFunction: {
-					STGcovFunction *function = [[STGcovFunction alloc] initWithData:tagData version:version];
-					if (!function) {
-						return nil;
-					}
-					[_functions addObject:function];
-				} break;
-				case STGcovTagBlocks: {
-					STGcovFunction *function = [_functions lastObject];
-					if (![function addBlocksFromData:tagData version:version]) {
-						return nil;
-					}
-				} break;
-				case STGcovTagArcs: {
-					STGcovFunction *function = [_functions lastObject];
-					if (![function addArcsFromData:tagData version:version]) {
-						return nil;
-					}
-				} break;
-				case STGcovTagLines: {
-					STGcovFunction *function = [_functions lastObject];
-					if (![function addLinesFromData:tagData version:version]) {
-						return nil;
-					}
-				} break;
-				case STGcovTagCounter: {
-					NSAssert(0, @"unexpected counter tag in GCNO file");
-				} break;
-				default: {
-					NSAssert(0, @"unhandled tag");
-				} break;
-			}
+		switch (tag) {
+			case STGcovTagFunction: {
+				STGcovFunction *function = [[STGcovFunction alloc] initWithData:tagData version:version];
+				if (!function) {
+					return NO;
+				}
+				[_functions addObject:function];
+			} break;
+			case STGcovTagBlocks: {
+				STGcovFunction *function = [_functions lastObject];
+				if (![function addBlocksFromData:tagData version:version]) {
+					return NO;
+				}
+			} break;
+			case STGcovTagArcs: {
+				STGcovFunction *function = [_functions lastObject];
+				if (![function addArcsFromData:tagData version:version]) {
+					return NO;
+				}
+			} break;
+			case STGcovTagLines: {
+				STGcovFunction *function = [_functions lastObject];
+				if (![function addLinesFromData:tagData version:version]) {
+					return NO;
+				}
+			} break;
+			case STGcovTagCounter: {
+				NSAssert(0, @"unexpected counter tag in GCNO file");
+			} break;
+			default: {
+				NSAssert(0, @"unhandled tag");
+			} break;
 		}
 	}
-	return self;
+	return YES;
 }
 
 - (BOOL)addGCDAData:(NSData *)gcda {
