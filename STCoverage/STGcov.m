@@ -638,6 +638,7 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 	uint64_t count = 0;
 	for (STGcovArc *arc in _arcs) {
 		if (arc.flags & STGcovArcFlagComputedCount) {
+			NSAssert(0, @"computed counts not implemented");
 			continue;
 		}
 		count += arc.count;
