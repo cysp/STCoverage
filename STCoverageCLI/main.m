@@ -40,7 +40,7 @@ int main(int argc, const char * argv[]) {
 
 		NSDictionary *coverage = [cov sourceLineCoverageCounts];
 		NSData *output = [NSJSONSerialization dataWithJSONObject:coverage options:0 error:NULL];
-		[output writeToFile:@"/dev/stdout" options:NSDataWritingWithoutOverwriting error:NULL];
+		[output writeToFile:@"/dev/stdout" options:0 error:NULL];
 	}
     return 0;
 }
