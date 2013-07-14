@@ -5,11 +5,10 @@
 
 @interface STGcov : NSObject
 
-- (id)initWithSourceFile:(NSData *)source GCNOData:(NSData *)gcno;
+- (id)initWithGCNOData:(NSData *)gcno;
 
-- (void)addGCDAData:(NSData *)gcda;
+- (BOOL)addGCDAData:(NSData *)gcda;
 
-- (NSArray *)sourceLines;
 - (NSArray *)sourceLineCoverageCounts;
 
 @end
