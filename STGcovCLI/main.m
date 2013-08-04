@@ -14,7 +14,7 @@ int main(int argc, const char * argv[]) {
 	@autoreleasepool {
 		NSString *argv0 = [[NSString alloc] initWithUTF8String:argv[0]];
 		if (argc < 3) {
-			usage([[argv0 lastPathComponent] UTF8String] ?: "STCoverage");
+			usage([[argv0 lastPathComponent] UTF8String] ?: "STGcov");
 		}
 
 		NSMutableArray *gcnoFilenames = [[NSMutableArray alloc] init];
