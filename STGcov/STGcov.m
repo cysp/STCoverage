@@ -368,7 +368,9 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 				NSAssert(0, @"unexpected lines tag in GCNO file");
 			} break;
 			case STGcovTagCounter: {
-				[function addCountsFromData:tagData version:version];
+				if (![function addCountsFromData:tagData version:version]) {
+					return NO;
+				}
 			} break;
 			default: {
 				NSAssert(0, @"unhandled tag");
