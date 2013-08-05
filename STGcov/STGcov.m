@@ -325,8 +325,9 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 	BOOL knownVersion = NO;
 	switch (version) {
 		case STGcovVersion402:
-		case STGcovVersion404:
 			knownVersion = YES;
+			break;
+		case STGcovVersion404:
 			break;
 	}
 	if (!knownVersion) {
@@ -387,11 +388,6 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 	if (![stream readUInt32:NULL]) { // checksum #1
 		return nil;
 	}
-//	if (version != STGcovVersion402) {
-//		if (![stream readUInt32:NULL]) { // checksum #2
-//			return nil;
-//		}
-//	}
 
 	NSString *functionName = nil;
 	if (![stream readString:&functionName]) {
@@ -479,11 +475,6 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 	if (![stream readUInt32:NULL]) { // checksum #1
 		return nil;
 	}
-//	if (version != STGcovVersion402) {
-//		if (![stream readUInt32:NULL]) { // checksum #2
-//			return nil;
-//		}
-//	}
 
 	NSString *name = nil;
 	if (![stream readString:&name]) {
