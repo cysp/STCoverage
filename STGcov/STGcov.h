@@ -9,6 +9,6 @@
 
 - (BOOL)addGCDAData:(NSData *)gcda;
 
-- (NSDictionary *)sourceLineCoverageCounts;
+- (NSDictionary *)coverage;
 
 @end

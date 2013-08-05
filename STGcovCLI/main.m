@@ -54,8 +54,18 @@ int main(int argc, const char * argv[]) {
 			}
 		}
 
-		NSDictionary *coverage = [cov sourceLineCoverageCounts];
-		NSData *output = [NSJSONSerialization dataWithJSONObject:coverage options:0 error:NULL];
+		NSDictionary *coverage = [cov coverage];
+
+		NSMutableDictionary *coverageJSONObject = [NSMutableDictionary dictionaryWithCapacity:coverage.count];
+		[coverage enumerateKeysAndObjectsUsingBlock:^(NSString *filename, NSDictionary *coveragecounts, BOOL *stop) {
+			NSMutableDictionary *filecoverage = [NSMutableDictionary dictionaryWithCapacity:coveragecounts.count];
+			[coveragecounts enumerateKeysAndObjectsUsingBlock:^(NSNumber *linenumber, NSNumber *count, BOOL *stop) {
+				filecoverage[[linenumber stringValue]] = count;
+			}];
+			coverageJSONObject[filename] = filecoverage;
+		}];
+
+		NSData *output = [NSJSONSerialization dataWithJSONObject:coverageJSONObject options:0 error:NULL];
 		[output writeToFile:@"/dev/stdout" options:0 error:NULL];
 	}
     return 0;

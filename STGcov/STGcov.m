@@ -408,37 +408,19 @@ typedef void(^STGcovBlockCoverageEnumerator)(NSString *filename, NSUInteger line
 }
 
 
-- (NSDictionary *)sourceLineCoverageCounts {
-	NSMutableDictionary *largestLineNumbersByFilename = [[NSMutableDictionary alloc] init];
-	for (STGcovFunction *function in self.functions) {
-		for (STGcovBlock *block in function.blocks) {
-			[block enumerateCoveredLinesWithBlock:^(NSString *filename, NSUInteger lineNumber, uint64_t count) {
-				NSUInteger largestLineNumber = [largestLineNumbersByFilename[filename] unsignedIntegerValue];
-				if (lineNumber > largestLineNumber) {
-					largestLineNumbersByFilename[filename] = @(lineNumber);
-				}
-			}];
-		}
-	}
-
+- (NSDictionary *)coverage {
 	NSMutableDictionary *coverageCountsByFilename = [[NSMutableDictionary alloc] init];
-	[largestLineNumbersByFilename enumerateKeysAndObjectsUsingBlock:^(NSString *filename, NSNumber *largestLineNumber, BOOL *stop) {
-		NSMutableArray *lineCounts = [[NSMutableArray alloc] initWithCapacity:[largestLineNumber unsignedIntegerValue]];
-		for (NSUInteger i = 0; i < [largestLineNumber unsignedIntegerValue]; ++i) {
-			lineCounts[i] = [NSNull null];
-		}
-		coverageCountsByFilename[filename] = lineCounts;
-	}];
+
 	for (STGcovFunction *function in self.functions) {
 		for (STGcovBlock *block in function.blocks) {
 			[block enumerateCoveredLinesWithBlock:^(NSString *filename, NSUInteger lineNumber, uint64_t count) {
-				NSMutableArray *coverageCounts = coverageCountsByFilename[filename];
+				NSMutableDictionary *coverageCounts = coverageCountsByFilename[filename];
 				if (!coverageCounts) {
-					coverageCounts = [[NSMutableArray alloc] init];
+					coverageCounts = [[NSMutableDictionary alloc] init];
 					coverageCountsByFilename[filename] = coverageCounts;
 				}
-				NSNumber *coverageCount = STEnsureNSNumber(coverageCounts[lineNumber-1]);
-				coverageCounts[lineNumber-1] = @([coverageCount unsignedIntegerValue] + count);
+				NSNumber *coverageCount = STEnsureNSNumber(coverageCounts[@(lineNumber)]);
+				coverageCounts[@(lineNumber)] = @([coverageCount unsignedIntegerValue] + count);
 			}];
 		}
 	}
