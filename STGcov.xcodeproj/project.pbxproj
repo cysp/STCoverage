@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C86242218D98CBB00072027 /* STGCDA.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C86242018D98CBB00072027 /* STGCDA.h */; };
+		2C86242318D98CBB00072027 /* STGCDA.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C86242118D98CBB00072027 /* STGCDA.m */; };
+		2C86242618D98CC400072027 /* STGCNO.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C86242418D98CC400072027 /* STGCNO.h */; };
+		2C86242718D98CC400072027 /* STGCNO.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C86242518D98CC400072027 /* STGCNO.m */; };
+		2C86242A18D98D7800072027 /* STGcovConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C86242818D98D7800072027 /* STGcovConstants.h */; };
+		2C86242B18D98D7800072027 /* STGcovConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C86242918D98D7800072027 /* STGcovConstants.m */; };
+		2C86242E18D991EA00072027 /* STGcovStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C86242C18D991EA00072027 /* STGcovStream.h */; };
+		2C86242F18D991EA00072027 /* STGcovStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C86242D18D991EA00072027 /* STGcovStream.m */; };
 		2CB2008217919163004C73C7 /* STGcov.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB2008117919163004C73C7 /* STGcov.m */; };
 		2CB2008917919163004C73C7 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CB2008817919163004C73C7 /* XCTest.framework */; };
 		2CB2008D17919163004C73C7 /* libstgcov.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CB2007417919163004C73C7 /* libstgcov.a */; };
@@ -39,6 +47,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2C86242018D98CBB00072027 /* STGCDA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STGCDA.h; sourceTree = "<group>"; };
+		2C86242118D98CBB00072027 /* STGCDA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STGCDA.m; sourceTree = "<group>"; };
+		2C86242418D98CC400072027 /* STGCNO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STGCNO.h; sourceTree = "<group>"; };
+		2C86242518D98CC400072027 /* STGCNO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STGCNO.m; sourceTree = "<group>"; };
+		2C86242818D98D7800072027 /* STGcovConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STGcovConstants.h; sourceTree = "<group>"; };
+		2C86242918D98D7800072027 /* STGcovConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STGcovConstants.m; sourceTree = "<group>"; };
+		2C86242C18D991EA00072027 /* STGcovStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STGcovStream.h; sourceTree = "<group>"; };
+		2C86242D18D991EA00072027 /* STGcovStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STGcovStream.m; sourceTree = "<group>"; };
 		2CB2007417919163004C73C7 /* libstgcov.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libstgcov.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CB2007A17919163004C73C7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2CB2008017919163004C73C7 /* STGcov.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = STGcov.h; sourceTree = "<group>"; };
@@ -115,6 +131,14 @@
 			children = (
 				2CB2008017919163004C73C7 /* STGcov.h */,
 				2CB2008117919163004C73C7 /* STGcov.m */,
+				2C86242818D98D7800072027 /* STGcovConstants.h */,
+				2C86242918D98D7800072027 /* STGcovConstants.m */,
+				2C86242C18D991EA00072027 /* STGcovStream.h */,
+				2C86242D18D991EA00072027 /* STGcovStream.m */,
+				2C86242418D98CC400072027 /* STGCNO.h */,
+				2C86242518D98CC400072027 /* STGCNO.m */,
+				2C86242018D98CBB00072027 /* STGCDA.h */,
+				2C86242118D98CBB00072027 /* STGCDA.m */,
 			);
 			path = STGcov;
 			sourceTree = "<group>";
@@ -143,6 +167,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C86242A18D98D7800072027 /* STGcovConstants.h in Headers */,
+				2C86242618D98CC400072027 /* STGCNO.h in Headers */,
+				2C86242E18D991EA00072027 /* STGcovStream.h in Headers */,
+				2C86242218D98CBB00072027 /* STGCDA.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,6 +273,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CB2008217919163004C73C7 /* STGcov.m in Sources */,
+				2C86242718D98CC400072027 /* STGCNO.m in Sources */,
+				2C86242B18D98D7800072027 /* STGcovConstants.m in Sources */,
+				2C86242F18D991EA00072027 /* STGcovStream.m in Sources */,
+				2C86242318D98CBB00072027 /* STGCDA.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,6 +340,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -342,6 +379,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				SDKROOT = macosx;
 			};

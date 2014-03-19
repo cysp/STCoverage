@@ -13,60 +13,65 @@ void __attribute__((noreturn)) usage(char const * const argv0) {
 int main(int argc, const char * argv[]) {
 	@autoreleasepool {
 		NSString *argv0 = [[NSString alloc] initWithUTF8String:argv[0]];
-		if (argc < 3) {
+		if (argc < 2) {
 			usage([[argv0 lastPathComponent] UTF8String] ?: "STGcov");
 		}
 
-		NSMutableArray *gcnoFilenames = [[NSMutableArray alloc] init];
-		NSMutableArray *gcdaFilenames = [[NSMutableArray alloc] init];
-		NSMutableArray *otherFilenames = [[NSMutableArray alloc] init];
-
+        NSMutableArray * const baseURLs = [[NSMutableArray alloc] initWithCapacity:argc - 2];
 		for (int i = 1; i < argc; ++i) {
-			NSString *filename = [[NSString alloc] initWithUTF8String:argv[i]];
-			if ([filename hasSuffix:@".gcno"]) {
-				[gcnoFilenames addObject:filename];
-			} else if ([filename hasSuffix:@".gcda"]) {
-				[gcdaFilenames addObject:filename];
-			} else {
-				[otherFilenames addObject:filename];
-			}
+			NSString * const path = [[NSString alloc] initWithUTF8String:argv[i]];
+            NSURL * const url = [NSURL fileURLWithPath:path];
+            [baseURLs addObject:url];
 		}
 
-		STGcov *cov = [[STGcov alloc] init];
+        NSMutableArray *gcnoURLs = [[NSMutableArray alloc] init];
+        for (NSURL *baseURL in baseURLs) {
+            NSDirectoryEnumerator * const enumerator = [[NSFileManager defaultManager] enumeratorAtURL:baseURL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles errorHandler:nil];
+            for (NSURL *url in enumerator) {
+                NSString * const extension = url.pathExtension;
+                if ([@"gcno" isEqualToString:extension]) {
+                    [gcnoURLs addObject:url];
+                }
+            }
+        }
 
-		for (NSString *gcnoFilename in gcnoFilenames) {
-			NSData *gcnoData = [[NSData alloc] initWithContentsOfFile:gcnoFilename options:NSDataReadingMappedIfSafe error:NULL];
-			if (!gcnoData) {
-				return 1;
-			}
-			if (![cov addGCNOData:gcnoData]) {
-				return 1;
-			}
+//        STGcovCoverageAccumulator * const accum = [[STGcovCoverageAccumulator alloc] init];
+
+		for (NSURL *gcnoURL in gcnoURLs) {
+            STGCNO * const gcno = [[STGCNO alloc] initWithContentsOfURL:gcnoURL];
+            if (!gcno) {
+                continue;
+            }
+
+            NSURL * const gcdaURL = [gcnoURL.URLByDeletingPathExtension URLByAppendingPathExtension:@"gcda"];
+            STGCDA * const gcda = [[STGCDA alloc] initWithContentsOfURL:gcdaURL];
+
+            STGcov * const cov = [[STGcov alloc] initWithGCNO:gcno];
+            if ([cov addGCDA:gcda]) {
+                NSLog(@"%@", cov.coverage);
+            }
+//            [accum addCoverage:cov.coverage];
 		}
 
-		for (NSString *gcdaFilename in gcdaFilenames) {
-			NSData *gcdaData = [[NSData alloc] initWithContentsOfFile:gcdaFilename options:NSDataReadingMappedIfSafe error:NULL];
-			if (!gcdaData) {
-				return 1;
-			}
-			if (![cov addGCDAData:gcdaData]) {
-				return 1;
-			}
-		}
-
-		NSDictionary *coverage = [cov coverage];
-
-		NSMutableDictionary *coverageJSONObject = [NSMutableDictionary dictionaryWithCapacity:coverage.count];
-		[coverage enumerateKeysAndObjectsUsingBlock:^(NSString *filename, NSDictionary *coveragecounts, BOOL *stop) {
-			NSMutableDictionary *filecoverage = [NSMutableDictionary dictionaryWithCapacity:coveragecounts.count];
-			[coveragecounts enumerateKeysAndObjectsUsingBlock:^(NSNumber *linenumber, NSNumber *count, BOOL *stop) {
-				filecoverage[[linenumber stringValue]] = count;
-			}];
-			coverageJSONObject[filename] = filecoverage;
-		}];
-
-		NSData *output = [NSJSONSerialization dataWithJSONObject:coverageJSONObject options:0 error:NULL];
-		[output writeToFile:@"/dev/stdout" options:0 error:NULL];
+//        NSArray * const coveredFilenames = accum.filenames;
+//
+//		NSMutableDictionary *coverageJSONObject = [NSMutableDictionary dictionaryWithCapacity:coveredFilenames.count];
+//        for (NSString * const filename in coveredFilenames) {
+//            STGcovFileCoverage * const fileCoverage = [accum coverageForFile:filename];
+//            NSIndexSet * const coveredLines = fileCoverage.coveredLines;
+//            NSMutableDictionary * const coverageFileJSONObject = [NSMutableDictionary dictionaryWithCapacity:coveredLines.count];
+//            [coveredLines enumerateIndexesUsingBlock:^(NSUInteger lineNumber, BOOL *stop) {
+//                NSString * const lineNumberString = [NSString stringWithFormat:@"%lu", (unsigned long)lineNumber];
+//                NSUInteger const lineCoverage = [fileCoverage coverageForLine:lineNumber];
+//                if (lineCoverage) {
+//                    coverageFileJSONObject[lineNumberString] = @(lineCoverage);
+//                }
+//            }];
+//            coverageJSONObject[filename] = coverageFileJSONObject;
+//        }
+//
+//		NSData *output = [NSJSONSerialization dataWithJSONObject:coverageJSONObject options:0 error:NULL];
+//		[output writeToFile:@"/dev/stdout" options:0 error:NULL];
 	}
     return 0;
 }
